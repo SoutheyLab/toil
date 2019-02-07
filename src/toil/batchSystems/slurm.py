@@ -78,7 +78,7 @@ class SlurmBatchSystem(AbstractGridEngineBatchSystem):
                 sbatch_line.append("--time=" + walltimes[cwlfilename]["walltime"])
             except KeyError:
                 pass
-            return self.prepareSbatch(cpu, memory, jobID) + ['--wrap={}'.format(command)]
+            return sbatch_line + ['--wrap={}'.format(command)]
 
         def submitJob(self, subLine):
             try:
