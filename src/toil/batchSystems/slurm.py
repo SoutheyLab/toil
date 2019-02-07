@@ -62,6 +62,22 @@ class SlurmBatchSystem(AbstractGridEngineBatchSystem):
             subprocess.check_call(['scancel', self.getBatchSystemID(jobID)])
 
         def prepareSubmission(self, cpu, memory, jobID, command):
+            import yaml
+            # Try and read the yaml file from the env variable
+            walltimes = os.getenv("TOIL_SLURM_WALLTIMES")
+            walltimes = yaml.load(walltimes) if walltimes else {}
+
+            # Parse the cwl file name from the command argument
+            cwlfile = [s for s in command.split() if s.endswith(".cwl")]
+            cwlfilename = os.path.basename(cwlfile[0]).rstrip(".cwl") if len(cwlfile) == 1 else ""
+
+            sbatch_line = self.prepareSbatch(cpu, memory, jobID)
+            # Given multiple walltime specifications sbatch will use the last so
+            # appending will work even in the presence of a default from TOIL_SLURM_ARGS.
+            try:
+                sbatch_line.append("--time=" + walltimes[cwlfilename]["walltime"])
+            except KeyError:
+                pass
             return self.prepareSbatch(cpu, memory, jobID) + ['--wrap={}'.format(command)]
 
         def submitJob(self, subLine):
