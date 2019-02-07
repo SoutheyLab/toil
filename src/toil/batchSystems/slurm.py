@@ -22,6 +22,7 @@ from pipes import quote
 from toil import subprocess
 import time
 import math
+import yaml
 
 # Python 3 compatibility imports
 from six.moves.queue import Empty, Queue
@@ -62,7 +63,6 @@ class SlurmBatchSystem(AbstractGridEngineBatchSystem):
             subprocess.check_call(['scancel', self.getBatchSystemID(jobID)])
 
         def prepareSubmission(self, cpu, memory, jobID, command):
-            import yaml
             # Try and read the yaml file from the env variable
             walltimes = os.getenv("TOIL_SLURM_WALLTIMES")
             walltimes = yaml.load(walltimes) if walltimes else {}
