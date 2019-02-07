@@ -65,17 +65,18 @@ class SlurmBatchSystem(AbstractGridEngineBatchSystem):
         def prepareSubmission(self, cpu, memory, jobID, command):
             # Try and read the yaml file from the env variable
             walltimes = os.getenv("TOIL_SLURM_WALLTIMES")
+            logger.debug("Attempting to append tool specific walltimes to sbatch from WALLTIMES env variable.")
             walltimes = yaml.load(walltimes) if walltimes else {}
 
             # Parse the cwl file name from the command argument
             cwlfile = [s for s in command.split() if s.endswith(".cwl")]
-            cwlfilename = os.path.basename(cwlfile[0]).rstrip(".cwl") if len(cwlfile) == 1 else ""
+            cwlfilename = os.path.basename(cwlfile[0]).rstrip(".cwl") if len(cwlfile) == 1 else None
 
-            sbatch_line = self.prepareSbatch(cpu, memory, jobID)
             # Given multiple walltime specifications sbatch will use the last so
             # appending will work even in the presence of a default from TOIL_SLURM_ARGS.
+            sbatch_line = self.prepareSbatch(cpu, memory, jobID)
             try:
-                sbatch_line.append("--time=" + walltimes[cwlfilename]["walltime"])
+                sbatch_line.append("--time={}".format(walltimes[cwlfilename]["walltime"]))
             except KeyError:
                 pass
             return sbatch_line + ['--wrap={}'.format(command)]
