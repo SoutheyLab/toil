@@ -99,7 +99,7 @@ class Config(object):
         self.maxPreemptableServiceJobs = sys.maxsize
         self.maxServiceJobs = sys.maxsize
         self.deadlockWait = 60  # Number of seconds to wait before declaring a deadlock
-        self.statePollingWait = 1  # Number of seconds to wait before querying job state
+        self.statePollingWait = None  # Number of seconds to wait before querying job state
 
         # Resource requirements
         self.defaultMemory = 2147483648
@@ -454,7 +454,7 @@ def _addOptions(addGroupFn, config):
         addOptionFn("--deadlockWait", dest="deadlockWait", default=None,
                     help=(
                     "The minimum number of seconds to observe the cluster stuck running only the same service jobs before throwing a deadlock exception. default=%s" % config.deadlockWait))
-        addOptionFn("--statePollingWait", dest="statePollingWait", default=1,
+        addOptionFn("--statePollingWait", dest="statePollingWait", default=None,
                     help=("Time, in seconds, to wait before doing a scheduler query for job state. "
                           "Return cached results if within the waiting period."))
 
