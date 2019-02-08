@@ -232,7 +232,7 @@ class SlurmBatchSystem(AbstractGridEngineBatchSystem):
 
     @classmethod
     def getWaitDuration(cls):
-        return 1
+        return 15
 
     @classmethod
     def obtainSystemConstants(cls):
