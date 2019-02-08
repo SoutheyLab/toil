@@ -142,6 +142,7 @@ class SlurmBatchSystem(AbstractGridEngineBatchSystem):
                     'job',
                     str(slurmJobID)]
     
+            logger.debug("Getting job status from scontrol.")
             process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     
             job = dict()
