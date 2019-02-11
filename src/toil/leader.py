@@ -601,7 +601,7 @@ class Leader(object):
         try:
             job = Job._loadJob(jobNode.command, self.jobStore)
             cwljob = resolve_indirect(job.cwljob)
-            logger.debug("CWLJob keys: {}".format(cwljob.keys()))
+            logger.debug("CWLJob keys: {}".format(cwljob["walltime"]))
         except Exception as e:
             logger.debug("Exception thrown when trying to load environment variables: {}".format(e))
 
