@@ -597,17 +597,13 @@ class Leader(object):
 
     def issueJob(self, jobNode):
         """Add a job to the queue of jobs."""
+        from toil.cwl.cwltoil import resolve_indirect
         try:
-            logger.debug("jobNode command is {}.".format(jobNode.command))
             job = Job._loadJob(jobNode.command, self.jobStore)
-            evr, _ = job.cwltool.get_requirement("EnvVarRequirement")
-            walltime = [t["envValue"] for t in evr["envDef"] if t["envName"] == "WALLTIME"][0]
-            logger.debug("Environment walltime is: {}!".format(walltime))
-            logger.debug("Step inputs are: {}!".format(job.step_inputs))
+            cwljob = resolve_indirect(job.cwljob)
+            logger.debug("CWLJob keys: {}".format(cwljob.keys()))
         except Exception as e:
             logger.debug("Exception thrown when trying to load environment variables: {}".format(e))
-            logger.debug("jobNode command is {}.".format(jobNode.command))
-            logger.debug("Couldn't read walltime environment variable")
 
         jobNode.command = ' '.join((resolveEntryPoint('_toil_worker'),
                                     jobNode.jobName,
