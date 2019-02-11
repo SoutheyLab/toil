@@ -39,7 +39,7 @@ from toil.lib.throttle import LocalThrottle
 from toil.provisioners.clusterScaler import ScalerThread
 from toil.serviceManager import ServiceManager
 from toil.statsAndLogging import StatsAndLogging
-from toil.job import JobNode, ServiceJobNode
+from toil.job import JobNode, ServiceJobNode, Job
 from toil.toilState import ToilState
 from toil.common import ToilMetrics
 
@@ -597,6 +597,18 @@ class Leader(object):
 
     def issueJob(self, jobNode):
         """Add a job to the queue of jobs."""
+        try:
+            logger.debug("jobNode command is {}.".format(jobNode.command))
+            job = Job._loadJob(jobNode.command, self.jobStore)
+            evr, _ = job.cwltool.get_requirement("EnvVarRequirement")
+            walltime = [t["envValue"] for t in evr["envDef"] if t["envName"] == "WALLTIME"][0]
+            logger.debug("Environment walltime is: {}!".format(walltime))
+            logger.debug("Step inputs are: {}!".format(job.step_inputs))
+        except Exception as e:
+            logger.debug("Exception thrown when trying to load environment variables: {}".format(e))
+            logger.debug("jobNode command is {}.".format(jobNode.command))
+            logger.debug("Couldn't read walltime environment variable")
+
         jobNode.command = ' '.join((resolveEntryPoint('_toil_worker'),
                                     jobNode.jobName,
                                     self.jobStoreLocator,
